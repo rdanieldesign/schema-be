@@ -12,7 +12,7 @@ CREATE TABLE `entities`
         `schemaId`            VARCHAR(36) NOT NULL,
         `createdDate`         DATETIME NOT NULL,
         `updatedDate`         DATETIME NOT NULL,
-        `values`              JSON,
+        `valueMap`            JSON,
         PRIMARY KEY (`id`),
         INDEX schemaIndex (schemaId),
         FOREIGN KEY (schemaId) REFERENCES schemaDefinitions(`id`)
@@ -28,7 +28,7 @@ CREATE TABLE `attributes`
       `required`        BOOLEAN,      
       `optionEntityId`  VARCHAR(36) NULL,
       PRIMARY KEY (`id`),
-      FOREIGN KEY (optionEntityId) REFERENCES entities(`id`)
+      FOREIGN KEY (optionEntityId) REFERENCES schemaDefinitions(`id`)
     )
     engine = innodb charset=utf8mb4 COLLATE utf8mb4_general_ci;
 
@@ -36,8 +36,8 @@ CREATE TABLE `schemaAttributes`
     (
       `attributeId`     VARCHAR(36) NOT NULL,
       `schemaId`        VARCHAR(36) NOT NULL,
-      `primary`         BOOLEAN,
-      `secondary`       BOOLEAN,
+      `isPrimary`         BOOLEAN,
+      `isSecondary`       BOOLEAN,
       FOREIGN KEY (attributeId) REFERENCES attributes(`id`),
       FOREIGN KEY (schemaId) REFERENCES schemaDefinitions(`id`)
     )

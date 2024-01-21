@@ -1,13 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const programmingLanguages = require('../services/entities');
+const entities = require('../services/entities');
 
-/* GET programming languages. */
 router.get('/', async function(req, res, next) {
   try {
-    res.json(await programmingLanguages.getMultiple(req.query.page));
+    res.json(await entities.getMultiple(req.query.page));
   } catch (err) {
-    console.error(`Error while getting programming languages `, err.message);
+    console.error(`Error while getting entities: `, err.message);
+    next(err);
+  }
+});
+
+router.post('/', async function(req, res, next) {
+  try {
+    res.json(await entities.create(req.body));
+  } catch (err) {
+    console.error(`Error while creating entity: `, err.message);
     next(err);
   }
 });
