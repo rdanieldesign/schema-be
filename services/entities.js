@@ -1,6 +1,7 @@
 const db = require('./db');
 const helper = require('../helper');
 const config = require('../config');
+const schemas = require('../services/schema-definitions');
 
 async function getMultiple(page = 1){
   const offset = helper.getOffset(page, config.listPerPage);
@@ -15,6 +16,35 @@ async function getMultiple(page = 1){
     data,
     meta
   }
+}
+
+async function getMultipleBySchema(schemaId, page = 1){
+  const offset = helper.getOffset(page, config.listPerPage);
+  const rows = await db.query(
+    `SELECT id, createdDate, updatedDate, valueMap
+    FROM entities E
+    WHERE E.schemaId = '${schemaId}'
+    LIMIT ${offset},${config.listPerPage};`
+  );
+  const data = helper.emptyOrRows(rows);
+  const meta = {page};
+
+  return {
+    data,
+    meta
+  }
+}
+
+async function getById(entityId){
+  const rows = await db.query(
+    `SELECT id, schemaId, createdDate, updatedDate, valueMap
+    FROM entities E
+    WHERE E.id = '${entityId}'
+    LIMIT 1;`
+  );
+  const { schemaId, ...entity } = helper.emptyOrRows(rows)[0];
+  const schema = await schemas.getById(schemaId);
+  return { ...entity, schema };
 }
 
 async function create(entity){
@@ -39,5 +69,7 @@ async function create(entity){
 
 module.exports = {
   getMultiple,
-  create
+  getMultipleBySchema,
+  create,
+  getById
 }

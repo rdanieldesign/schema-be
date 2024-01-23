@@ -18,6 +18,17 @@ async function getMultiple(page = 1){
   }
 }
 
+async function getPrimaryBySchemas(schemaIdQueryString){
+  const schemaIds = schemaIdQueryString.split(',').map((id) => `'${id}'`).join(',');
+  const rows = await db.query(
+    `SELECT A.id, A.name, A.valueType, A.validationType, A.optionEntityId
+    FROM attributes A
+    INNER JOIN schemaAttributes SA ON A.id = SA.attributeId
+    WHERE SA.schemaId IN (${schemaIds});`
+  );
+  return helper.emptyOrRows(rows);
+}
+
 async function create(attribute){
   const validationType = helper.getStringOrNull(attribute.validationType);
   const valueType = helper.getStringOrNull(attribute.valueType);
@@ -37,7 +48,6 @@ async function create(attribute){
     id = result[2][0]['@id'];
   }
   if (id && attribute.schemaId) {
-    console.log(schemaAttributes.getAddAttributeToSchemaQuery(id, attribute.schemaId, attribute.isPrimary, attribute.isSecondary));
     const schemaAttributeResult = await db.query(schemaAttributes.getAddAttributeToSchemaQuery(id, attribute.schemaId, attribute.isPrimary, attribute.isSecondary));
     if (schemaAttributeResult.affectedRows) {
       message += ' and associated with the schema';
@@ -50,5 +60,6 @@ async function create(attribute){
 
 module.exports = {
   getMultiple,
+  getPrimaryBySchemas,
   create
 }
